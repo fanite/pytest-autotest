@@ -9,7 +9,7 @@ from typing import TypeVar, Union
 T = TypeVar("T", bound=Union[webdriver.Remote,Custom])
 
 def test_one(caplog):
-    raise Exception("sssssssssssssss")
+    log.info("asdsaddd")
 
 def test_two(device: "T"):
     device.activate_app("com.android.settings")

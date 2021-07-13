@@ -1,4 +1,6 @@
 import inspect
+import pytest
+import collections
 from os import path
 from time import strftime
 from _pytest.config import Config
@@ -8,26 +10,23 @@ from autotest import webdriver
 
 
 def logging_settings(config):
-    log_format = "%(asctime)s %(levelname)-8s %(filename)s::%(module)s::%(funcName)s <%(lineno)4d>: %(message)s"
+    log_format = "%(asctime)s %(levelname)-8s %(filename)s::%(module)s::%(funcName)s %(lineno)4d: %(message)s"
     log_date_format = "%Y-%m-%d %H:%M:%S"
-    if not config.getoption("log_format"):
-        setattr(config.option, "log_format", log_format)
-    if not config.getoption("log_date_format"):
-        setattr(config.option, "log_date_format", log_date_format)
-    if not config.getoption("log_file_format"):
-        setattr(config.option, "log_file_format", log_format)
-    if not config.getoption("log_file_date_format"):
-        setattr(config.option, "log_file_date_format", log_date_format)
+    settings = {
+        "log_format": log_format,
+        "log_date_format": log_date_format,
+        "log_file_format": log_format,
+        "log_file_date_format": log_date_format
+    }
+    config.inicfg.update(collections.ChainMap(config.inicfg, settings))
     log_file = config.getini("log_file")
     if log_file:
         log_file = path.normpath(log_file)
         root, ext = path.splitext(log_file)
-        if ext == "":
-            current_time = strftime("%Y-%m-%d-%H%M%S")
-            logs_path = path.join(log_file, f"{current_time}.log")
-        else:
-            logs_path = log_file
-        setattr(config.option, "log_file", logs_path)
+        logs_path = path.join(
+            log_file, f"{strftime('%Y-%m-%d-%H%M%S')}.log") if ext == "" else log_file
+        config.inicfg.update({"log_file": logs_path})
+
 
 def get_class(pypath):
     pyfile = path.join(pypath, "custom.py")
@@ -39,8 +38,11 @@ def get_class(pypath):
     pyclasses.insert(0, webdriver.Remote)
     return type("Remote", tuple(pyclasses), {})
 
+
+@pytest.hookimpl(tryfirst=True)
 def pytest_configure(config: Config):
     logging_settings(config)
+
 
 @fixture(scope="session")
 def device(pytestconfig, request):

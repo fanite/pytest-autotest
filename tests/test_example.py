@@ -1,3 +1,4 @@
+import os
 import pytest
 import logging as log
 from appium import webdriver
@@ -8,6 +9,8 @@ from typing import TypeVar, Union
 
 T = TypeVar("T", bound=Union[webdriver.Remote,Custom])
 
+img_path = os.path.join(os.getcwd(), "asserts/test.png")
+
 def test_one(caplog):
     log.info("asdsaddd")
 
@@ -15,10 +18,7 @@ def test_two(device: "T"):
     device.activate_app("com.android.settings")
 
 def test_three(device: "T"):
-    searchbar = device.find_element(By.ID, "com.android.settings:id/search_action_bar")
-    searchbar.click()
-    device.sleep(2)
-    device.tap([(93, 146)])
+    device.save_screenshot(img_path, (0,886,1080,1086))
 
 
 if __name__ == "__main__":

@@ -24,7 +24,8 @@ def logging_settings(config):
         log_file = path.normpath(log_file)
         root, ext = path.splitext(log_file)
         logs_path = path.join(
-            log_file, f"{strftime('%Y-%m-%d-%H%M%S')}.log") if ext == "" else log_file
+            log_file,
+            f"{strftime('%Y-%m-%d-%H%M%S')}.log") if ext == "" else log_file
         config.inicfg.update({"log_file": logs_path})
 
 
@@ -33,8 +34,11 @@ def get_class(pypath):
     if not path.isfile(pyfile):
         return webdriver.Remote
     pymodule = import_path(pyfile)
-    pyclasses = [pyclass for name, pyclass in inspect.getmembers(
-        pymodule, lambda x: inspect.isclass(x) and x.__base__ == webdriver.Remote.__base__)]
+    pyclasses = [
+        pyclass for name, pyclass in inspect.getmembers(
+            pymodule, lambda x: inspect.isclass(x) and x.__base__ == webdriver.
+            Remote.__base__)
+    ]
     pyclasses.insert(0, webdriver.Remote)
     return type("Remote", tuple(pyclasses), {})
 
@@ -47,10 +51,7 @@ def pytest_configure(config: Config):
 @fixture(scope="session")
 def device(pytestconfig, request):
     Remote = get_class(pytestconfig.rootpath)
-    desired_caps = dict(
-        platformName='Android',
-        deviceName='Android Emulator'
-    )
+    desired_caps = dict(platformName='Android', deviceName='Android Emulator')
     device = Remote('http://localhost:4723/wd/hub', desired_caps)
     yield device
     request.addfinalizer(lambda: device.quit())

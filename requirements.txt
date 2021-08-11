@@ -1,3 +1,5 @@
 pytest
 pytest-html
 Appium-Python-Client
+opencv-python
+aircv

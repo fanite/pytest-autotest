@@ -8,6 +8,7 @@ from os.path import basename
 from collections import ChainMap
 from typing import Optional, Union
 from appium.webdriver.common.mobileby import MobileBy
+from appium.webdriver.common.touch_action import TouchAction
 
 
 def find_all(im_source, im_search, **kwargs):
@@ -51,6 +52,40 @@ class CoordElement(object):
 
     def click(self):
         self.driver.tap([self.coord])
+
+    def dclick(self):
+        pass
+
+    def press(self):
+        action = TouchAction(self)
+        action.press(x=self.coord[0], y=self.coord[1]).release()
+        action.perform()
+
+    def long_press(self, duration: int = 1000):
+        action = TouchAction(self)
+        action.long_press(x=self.coord[0], y=self.coord[1],
+                          duration=duration).release()
+        action.perform()
+
+    def drag_to(self, end_x: int, end_y: int):
+        start_x, start_y = self.coord
+        action = TouchAction(self)
+        action.long_press(x=start_x, y=start_y)
+        action.move_to(x=end_x, y=end_y).release()
+        action.perform()
+
+    def swipe_to(self, end_x: int, end_y: int, duration: int = 0):
+        start_x, start_y = self.coord
+        action = TouchAction(self)
+        action.press(x=start_x, y=start_y).wait(ms=duration)
+        action.move_to(x=end_x, y=end_y).release()
+        action.perform()
+
+    def flick(self, end_x: int, end_y: int):
+        start_x, start_y = self.coord
+        action = TouchAction(self)
+        action.press(x=start_x, y=start_y).move_to(x=end_x, y=end_y).release()
+        action.perform()
 
 
 class Remote(webdriver.Remote):

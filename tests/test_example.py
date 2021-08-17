@@ -1,10 +1,8 @@
 import os
 import pytest
 import logging as log
-from appium import webdriver
-from autotest.by import By
+from custom import Custom
 from autotest import webdriver
-from .custom import Custom
 from typing import TypeVar, Union
 
 T = TypeVar("T", bound=Union[webdriver.Remote,Custom])
@@ -22,7 +20,6 @@ def test_three(device: "T"):
     device.sleep(3)
     # device.save_screenshot(img_path, (0,886,1080,1086))
     device.find_element_by_image(img_path, rgb=True).click()
-
 
 if __name__ == "__main__":
     pytest.main(["-s","-v"])
